@@ -21,4 +21,6 @@ RUN npm install
 EXPOSE 3000
 
 # ❌ No healthcheck and shell form CMD
+RUN apt-get install -y git
+ENV APP_KEY=supersecret
 CMD node app.js
