@@ -28,8 +28,11 @@ jobs:
           
           # 2. Trigger Fork & PR
           python3 optimizer-cli.py \
-            --file container-optimizer/backend/Dockerfile \
+            --file Dockerfile \
             --server "$OPTIMIZER_SERVER" \
             --create-pr \
             --repo-url "https://github.com/ShadowAyush04/new" \
             --github-token "$GH_TOKEN"
+
+      - name: Build Docker image
+        run: docker build . -t bad-docker-app
