@@ -1,24 +1,24 @@
-# 1. Use a massive base image instead of slim or alpine
-FROM node alpine
+# ❌ UNOPTIMIZED DOCKERFILE FOR TESTING
+FROM ubuntu:latest
 
-# 2. Run as root for maximum security risk
+# ❌ Running as root
 USER root
 
-# 3. Separate RUN commands for every single tool 
-# (This creates massive, redundant layers)
+# ❌ Multiple RUN layers and no cleanup
 RUN apt-get update
-
-# Note: No cleanup of /var/lib/apt/lists/ adds 30MB+ of junk data
+RUN apt-get install -y nodejs
+RUN apt-get install -y npm
+RUN apt-get install -y curl
 
 WORKDIR /app
 
-# 4. Copy everything before installing dependencies
-# This "cache busts" immediately—any code change forces a full reinstall
+# ❌ Copying everything (no .dockerignore used)
+COPY . .
 
-# 5. Use 'npm install' instead of 'npm ci' and include devDependencies
+# ❌ Installing dependencies with dev tools
 RUN npm install
 
 EXPOSE 3000
 
-# 6. No multi-stage build: Final image contains build tools, caches, and source code
-CMD ["node","ap.js"]
+# ❌ No healthcheck and shell form CMD
+CMD node app.js
