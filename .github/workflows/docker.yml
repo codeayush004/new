@@ -4,6 +4,7 @@ on:
   push:
     branches: [ "main", "master" ]
 
+# --- MANDATORY PERMISSIONS ---
 permissions:
   contents: write
   pull-requests: write
@@ -18,13 +19,14 @@ jobs:
       - name: Antigravity Optimization Gate
         env:
           OPTIMIZER_SERVER: 'https://app-optimizer-v11-1770717070.azurewebsites.net/api'
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # TIP: Use secrets.GITHUB_TOKEN for same-account testing (it's internal).
+          # TIP: Use secrets.GH_PAT_TOKEN if testing from a different account (cross-account fork flow).
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
         run: |
-          # 1. Download Latest Tool
+          # 1. Download the tool
           curl -sSL https://raw.githubusercontent.com/codeayush004/version2/main/container-optimizer/bin/optimizer-cli.py -o optimizer-cli.py
           
           # 2. RUN WITH CONSENT (PR) MODE
-          # This will now print exactly why it is (or isn't) creating a PR
           python3 optimizer-cli.py \
             --file Dockerfile \
             --server "$OPTIMIZER_SERVER" \
@@ -33,5 +35,5 @@ jobs:
             --github-token "$GH_TOKEN"
             
       - name: Build Docker image
+        # This only runs AFTER the gate check completes
         run: docker build . -t bad-docker-app
-        
