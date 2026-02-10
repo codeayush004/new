@@ -1,15 +1,27 @@
-# syntax=docker/dockerfile:1
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . ./
+# 1. Use a massive base image instead of slim or alpine
+FROM ubuntu:latest
 
-FROM node:20-slim
+# 2. Run as root for maximum security risk
+USER root
+
+# 3. Separate RUN commands for every single tool 
+# (This creates massive, redundant layers)
+RUN apt-get update
+RUN apt-get install -y nodejs
+RUN apt-get install -y npm
+RUN apt-get install -y curl
+# Note: No cleanup of /var/lib/apt/lists/ adds 30MB+ of junk data
+
 WORKDIR /app
-COPY --from=builder /app ./
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+# 4. Copy everything before installing dependencies
+# This "cache busts" immediately—any code change forces a full reinstall
+COPY . .
+
+# 5. Use 'npm install' instead of 'npm ci' and include devDependencies
+RUN npm install
+
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s CMD curl -f http://localhost:3000/health || exit 1
-USER node
-CMD ["node","app.js"]
+
+# 6. No multi-stage build: Final image contains build tools, caches, and source code
+CMD ["node", "app.js"]

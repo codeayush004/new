@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Antigravity Optimization Gate
+      - name: Optimizer Gate
         env:
           OPTIMIZER_SERVER: 'https://app-optimizer-v11-1770717070.azurewebsites.net/api'
         run: |
