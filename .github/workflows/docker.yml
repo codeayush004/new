@@ -4,6 +4,11 @@ on:
   push:
     branches: [ "main", "master" ]
 
+# 🚀 ADDED: Required permissions for the token to create PRs
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest # ☁️ Uses GitHub's cloud machine
